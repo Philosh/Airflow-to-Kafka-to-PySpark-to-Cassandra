@@ -60,7 +60,6 @@ def stream_data():
             continue
 
 
-stream_data()
 with DAG(
     "user_automation",
     default_args=default_args,
