@@ -4,7 +4,7 @@ from datetime import datetime
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 
-default_args = {"owner": "airscholar", "start_date": datetime(2023, 9, 3, 10, 00)}
+default_args = {"owner": "airscholar", "start_date": datetime(2024, 1, 1, 10, 00)}
 
 
 def get_data():
@@ -54,7 +54,6 @@ def stream_data():
         try:
             res = get_data()
             res = format_data(res)
-            print("res", res)
             producer.send("users_created", json.dumps(res).encode("utf-8"))
         except Exception as e:
             logging.error(f"An error occured: {e}")

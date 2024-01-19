@@ -90,8 +90,8 @@ def create_spark_connection():
             SparkSession.builder.appName("SparkDataStreaming")
             .config(
                 "spark.jars.packages",
-                "com.datastax.spark:spark-cassandra-connector_2.12:3.1.0,"
-                "org.apache.spark:spark-sql-kafka-0-10_2.12:3.4.1",
+                "com.datastax.spark:spark-cassandra-connector_2.12:3.4.1,"
+                "org.apache.spark:spark-sql-kafka-0-10_2.12:3.4.2",
             )
             .config("spark.cassandra.connection.host", "localhost")
             .getOrCreate()
@@ -177,9 +177,8 @@ if __name__ == "__main__":
             logging.info("Streaming is being started...")
 
             streaming_query = (
-                selection_df.writeStream.trigger(processingTime="5 seconds")
+                selection_df.writeStream.format("org.apache.spark.sql.cassandra")
                 .option("checkpointLocation", "/tmp/checkpoint")
-                .format("org.apache.spark.sql.cassandra")
                 .option("keyspace", "spark_streams")
                 .option("table", "created_users")
                 .start()
