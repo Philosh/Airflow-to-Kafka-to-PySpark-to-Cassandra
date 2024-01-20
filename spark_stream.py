@@ -110,7 +110,7 @@ def connect_to_kafka(spark_conn):
 
     spark_df = (
         spark_conn.readStream.format("kafka")
-        .option("kafka.bootstrap.servers", "localhost:9092")
+        .option("kafka.bootstrap.servers", "broker:29092")
         .option("subscribe", "users_created")
         .option("startingOffsets", "earliest")
         .load()
@@ -168,28 +168,36 @@ if __name__ == "__main__":
         # connect to kafka with spark connection
         spark_df = connect_to_kafka(spark_conn)
         selection_df = create_selection_df_from_kafka(spark_df)
-        session = create_cassandra_connection()
+        # session = create_cassandra_connection()
 
-        if session is not None:
-            create_keyspace(session)
-            create_table(session)
+        # if session is not None:
+        #     create_keyspace(session)
+        #     create_table(session)
 
-            logging.info("Streaming is being started...")
+        #     logging.info("Streaming is being started...")
 
-            # streaming_query = (
-            #     selection_df.writeStream.format("org.apache.spark.sql.cassandra")
-            #     .option("checkpointLocation", "/tmp/checkpoint")
-            #     .option("keyspace", "spark_streams")
-            #     .option("table", "created_users")
-            #     .start()
-            # )
+        # streaming_query = (
+        #     selection_df.writeStream.format("org.apache.spark.sql.cassandra")
+        #     .option("checkpointLocation", "/tmp/checkpoint")
+        #     .option("keyspace", "spark_streams")
+        #     .option("table", "created_users")
+        #     .start()
+        # )
 
-            # streaming_query.awaitTermination()
+        # streaming_query.awaitTermination()
 
-            spark_query = (
-                spark_df.writeStream.format("console")
-                .option("checkpointLocation", "/tmp/checkpoint")
-                .start()
-            )
+        # spark_query = (
+        #     selection_df.writeStream.format("console")
+        #     .option("checkpointLocation", "/tmp/checkpoint")
+        #     .start()
+        # )
 
-            spark_query.awaitTermination()
+        spark_query = spark_df.selectExpr("CAST(value AS STRING) as value")
+        print("Querying df")
+        query_df = (
+            spark_query.writeStream.format("console")
+            .option("failOnDataLoss", "false")
+            .start()
+        )
+        print("Query df done")
+        query_df.awaitTermination()
