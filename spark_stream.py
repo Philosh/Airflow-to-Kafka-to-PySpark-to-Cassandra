@@ -186,16 +186,11 @@ if __name__ == "__main__":
 
         streaming_query.awaitTermination()
 
-        # spark_query = (
-        #     selection_df.writeStream.format("console")
-        #     .option("checkpointLocation", "/tmp/checkpoint")
-        #     .start()
-        # )
-
         # spark_query = spark_df.selectExpr("CAST(value AS STRING) as value")
         # print("Querying df")
         # query_df = (
         #     spark_query.writeStream.format("console")
+        #     .option("checkpointLocation", "/tmp/checkpoint")
         #     .option("failOnDataLoss", "false")
         #     .start()
         # )

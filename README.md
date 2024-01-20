@@ -64,6 +64,9 @@ The project is designed with the following components:
 
 For more detailed instructions, please check out the video tutorial linked below.
 
-## Watch the Video Tutorial
+## Command to submit spark_stream job to spark master worker on docker container after uploading it
+pip3 install cassandra-driver==3.29.0
 
-For a complete walkthrough and practical demonstration, check out our [YouTube Video Tutorial](https://www.youtube.com/watch?v=GqAcTrqKcrY).
+spark-submit --packages com.datastax.spark:spark-cassandra-connector_2.12:3.4.1,org.apache.spark:spark-sql-kafka-0-10_2.12:3.4.2 --master spark://<spark-master-worker-ip-address> spark_stream.py
+
+
