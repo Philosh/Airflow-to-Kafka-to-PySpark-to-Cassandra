@@ -93,7 +93,7 @@ def create_spark_connection():
                 "com.datastax.spark:spark-cassandra-connector_2.12:3.4.1,"
                 "org.apache.spark:spark-sql-kafka-0-10_2.12:3.4.2",
             )
-            .config("spark.cassandra.connection.host", "localhost")
+            .config("spark.cassandra.connection.host", "cassandra_db")
             .getOrCreate()
         )
 
@@ -123,7 +123,7 @@ def connect_to_kafka(spark_conn):
 def create_cassandra_connection():
     try:
         # connecting to the cassandra cluster
-        cluster = Cluster(["localhost"])
+        cluster = Cluster(["cassandra_db"])
 
         cas_session = cluster.connect()
 
@@ -168,23 +168,23 @@ if __name__ == "__main__":
         # connect to kafka with spark connection
         spark_df = connect_to_kafka(spark_conn)
         selection_df = create_selection_df_from_kafka(spark_df)
-        # session = create_cassandra_connection()
+        session = create_cassandra_connection()
 
-        # if session is not None:
-        #     create_keyspace(session)
-        #     create_table(session)
+        if session is not None:
+            create_keyspace(session)
+            create_table(session)
 
-        #     logging.info("Streaming is being started...")
+            logging.info("Streaming is being started...")
 
-        # streaming_query = (
-        #     selection_df.writeStream.format("org.apache.spark.sql.cassandra")
-        #     .option("checkpointLocation", "/tmp/checkpoint")
-        #     .option("keyspace", "spark_streams")
-        #     .option("table", "created_users")
-        #     .start()
-        # )
+        streaming_query = (
+            selection_df.writeStream.format("org.apache.spark.sql.cassandra")
+            .option("checkpointLocation", "/tmp/checkpoint")
+            .option("keyspace", "spark_streams")
+            .option("table", "created_users")
+            .start()
+        )
 
-        # streaming_query.awaitTermination()
+        streaming_query.awaitTermination()
 
         # spark_query = (
         #     selection_df.writeStream.format("console")
@@ -192,12 +192,12 @@ if __name__ == "__main__":
         #     .start()
         # )
 
-        spark_query = spark_df.selectExpr("CAST(value AS STRING) as value")
-        print("Querying df")
-        query_df = (
-            spark_query.writeStream.format("console")
-            .option("failOnDataLoss", "false")
-            .start()
-        )
-        print("Query df done")
-        query_df.awaitTermination()
+        # spark_query = spark_df.selectExpr("CAST(value AS STRING) as value")
+        # print("Querying df")
+        # query_df = (
+        #     spark_query.writeStream.format("console")
+        #     .option("failOnDataLoss", "false")
+        #     .start()
+        # )
+        # print("Query df done")
+        # query_df.awaitTermination()
